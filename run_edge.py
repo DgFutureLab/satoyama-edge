@@ -12,7 +12,6 @@ from argparse import ArgumentParser
 from datetime import datetime
 import zlib
 import json
-from pprint import pprint
 
 logger = Logger(__name__)
 filehandler = RotatingFileHandler('log.txt', maxBytes = 10**6)
@@ -26,37 +25,56 @@ logger.addHandler(streamhandler)
 
 
 def open_serial_device():
-	try:
-		#device = '/dev/' + filter(lambda x: re.match('tty.usb*', x) or re.match('ttyUSB*', x), os.listdir('/dev'))[0]
-                device = 'COM4'
-		serial_device = serial.Serial(device, BAUDRATE, timeout = 5)
-		logger.debug('Opening device %s'%device)
-		return serial_device
-	except IndexError:
-		logger.fatal("Couldn't find any Arduino devices. Are you sure it's plugged in? :)")
-		os._exit(1)
+	def open_device(device_name):
+		try:
+			logger.info('Trying to open device %s'%device_name)
+			device = serial.Serial(device_name, BAUDRATE, timeout = 1)
+			if device.isOpen():
+				logger.info('Device %s is open.'%device_name)
+				return device
+			else:
+				return None
+		except OSError:
+			return None
+
+
+	if DEVICE_NAME:
+		device = open_device(DEVICE_NAME)
+		if device:
+			return device
+		else:
+			logger.warning('Failed to open device %s. Trying other devices...'%DEVICE_NAME)	
+	else:
+		available_linux_devices = filter(lambda x: re.match('tty.usb*', x) or re.match('ttyUSB*', x), os.listdir('/dev'))
+		if len(available_linux_devices) > 0:
+			device =  open_device('/dev/' + available_linux_devices[0])
+		else:
+			default_windows_device = 'COM4'
+			device = open_device(default_windows_device)
+		if not device: 
+			logger.fatal("Couldn't find connected Chibi boards. Are you sure it's plugged in? :)")
+			os._exit(1)
+
 		
 
 def parse_reading(reading):
-        if reading == "": return []
+	if reading == "": return []
 
 	try:
-                #logger.info("Parsing reading: '%s'"%reading)
 		addr, payload = reading.split('@')
 		addr = addr[1:]
 		if addr == 0:
-                        logger.warning('Discarding data from invalid node 0')
-                        return []
+			logger.warning('Discarding data from invalid node 0')
+			return []
 		parsed = map(lambda y: dict(zip(['alias', 'value', 'timestamp'], y)), map(lambda x: x.split(':'), payload[:-3].split(';')))
                 logger.info('Parsed %s readings.'%len(parsed))
 		for p in parsed:
-                        logger.debug("Reading from node %s: %s."%(addr, p))
+			logger.debug("Reading from node %s: %s."%(addr, p))
 			p.update({'node_id':addr})
 			p.update({'timestamp':datetime.now().strftime('%Y-%m-%d-%H:%M:%S:%f')})
 		return parsed 
 	except ValueError:
-		#logger.exception('Recieved garbage from serial port: %s'%reading)
-                logger.exception('Recieved garbage from serial port.')
+		logger.exception('Recieved garbage from serial port.')
 		return []
 	
 
@@ -67,6 +85,9 @@ def read_serial(name, is_running):
 	previous_reading = ''
 
 	while is_running.isSet():
+		if not is_running.isSet(): 
+			logger.info('%s got KILL signal! Please wait.'%name)
+		print 'waiting'
 		try:
 			reading = serial_connection.readline()
 			logger.debug('From serial: %s'%reading)
@@ -90,13 +111,11 @@ def read_serial(name, is_running):
 						logger.warning('Full queue. Discarding data: %s'%(queue.qsize(), discarded_reading))
 					except TypeError:
 						logger.warning('Full queue. Discarded old data.')
-					
-		
 		logger.debug('Data from serial: %s'%reading)
-		#time.sleep(0.1)
-	
-        logger.info("CLOSING SERIAL PORT")
+
+	logger.info("Closing serial port...")
 	serial_connection.close()
+	logger.info("Serial port closed.")
 
 def get_timeout(data_size):
         return 0.1 * float(data_size)
@@ -104,31 +123,35 @@ def get_timeout(data_size):
 def upload_daemon(name, is_running):
 	logger.debug('Running %s daemon'%name)
 	while is_running.isSet():
-		if not queue.empty():
+		print 'waiting in uploader'
+		if not is_running.isSet(): 
+			logger.info('%s got KILL signal! Please wait.'%name)
+			return 
+
+		if queue.empty():
+			time.sleep(UPLOAD_INTERVAL)
+			# is_running.wait(UPLOAD_INTERVAL)
+			logger.debug('Sleeping %s seconds'%UPLOAD_INTERVAL)
+		else:
 			request_payload = prepare_data_in_queue()
-			#logger.info(pprint(request_payload))
 			compressed_payload = compress_data(request_payload)
 			data_size = sys.getsizeof(compressed_payload)
 			timeout = get_timeout(data_size)
-			print timeout
+
 			try:
-                                n_readings = len(request_payload)
-                                data_hash = hash(frozenset(map(frozenset, request_payload)))
-                                logger.info("Data hash: %s (Attempt upload). Bytes: %s. Timeout is %f seconds."%(data_hash, data_size, data_size))
+				data_hash = hash(frozenset(map(frozenset, request_payload)))
+				logger.info("Data hash: %s (Attempt upload). Bytes: %s. Timeout is %f seconds."%(data_hash, data_size, data_size))
 				response = requests.post(URL, data = compressed_payload, timeout = timeout)
-                                if response.ok:
-                                        logger.info("Data hash: %s (Upload SUCCESS, status code: %s)."%(data_hash, response.status_code))
-                                else:
-                                        logger.info("Data hash: %s (Upload FAILURE). Qsize: %s, status_code: %s"%(data_hash, queue.qsize(), response.status_code))                
-                                        #logger.info("Sent value: %s"%request_payload["value"])
-				#logger.info('Sent %s bytes of data and got response: %s'%(sys.getsizeof(compressed_payload), response.text))
+				if response.ok:
+					logger.info("Data hash: %s (Upload SUCCESS, status code: %s)."%(data_hash, response.status_code))
+				else:
+					logger.info("Data hash: %s (Upload FAILURE). Qsize: %s, status_code: %s"%(data_hash, queue.qsize(), response.status_code))                
 				response.close()
 			except requests.ConnectionError:
 				logger.warning('ConnectionError. Discarding %s bytes of data.'%data_size)
 			except requests.Timeout:
-                                logger.warning('Timeout. Discarding %s bytes of data.'%data_size)
-		else:		
-                        time.sleep(UPLOAD_INTERVAL)
+				logger.warning('Timeout. Discarding %s bytes of data.'%data_size)		
+			
                 
 
 def compress_data(json_data):
@@ -148,11 +171,12 @@ def get_url(node_id, sensor_alias):
 if __name__ == "__main__":
 	parser = ArgumentParser()
 	parser.add_argument('--host', help = 'Server IP address e.g., 107.170.251.142', default = '128.199.191.249')
-	parser.add_argument('--port', help = 'Port on the server', default = 80)
-	parser.add_argument('-b', '--baud', help = 'Serial port baud rate (default 57600)', default = 57600)
-	parser.add_argument('-q', '--queue_size', help = 'The size of the queue that functions as a buffer between Serial-to-Internet', default = 10000)
-	parser.add_argument('-u', '--upload_interval', help = 'Interval in seconds (can be float) between uploading to the server', default = 60)
-	parser.add_argument('-d', '--debug_level', help = 'Port on the server', default = 'INFO')
+	parser.add_argument('--port', help = 'Port on the server (usually 80)', default = 80)
+	parser.add_argument('--baud','-b', help = 'Serial port baud rate (default 57600)', default = 57600)
+	parser.add_argument('--queue_size','-q', help = 'The size of the queue that functions as a buffer between Serial-to-Internet (default 10000)', default = 10000)
+	parser.add_argument('--upload_interval', '-u', help = 'Interval in seconds between uploading to the server (default 60)', default = 60)
+	parser.add_argument('--debug_level', '-l', help = 'Debug level', default = 'INFO', choices = ('DEBUG', 'INFO', 'WARNING', 'ERROR'))
+	parser.add_argument('--serial_device', '-d', help = 'On Linux/OSX this is typically /dev/ttyUSB-something, and on Windows COM-something.')
 
 	args = parser.parse_args()
 
@@ -188,6 +212,11 @@ if __name__ == "__main__":
 		logger.critical("Please specify a valid debug level (DEBUG, INFO, WARNING, etc.)")
 		os._exit(1)
 
+	try:
+		DEVICE_NAME = args.serial_device
+	except ValueError:
+		logger.critical("Could not parse argument --serial_device")
+		os._exit(1)
 
 	URL = 'http://%s:%s/reading/batch'%(HOST, PORT)
 
@@ -202,16 +231,23 @@ if __name__ == "__main__":
 	serial_reader = Thread(target = read_serial, args = ('Serial reader', is_running), name = 'SERIAL READER')
 	serial_reader.start()
 
-	if args.host:
+	if HOST:
 		uploader = Thread(target = upload_daemon, args = ('Data sender', is_running), name = 'UPLOADER')
+		uploader.daemon = True
 		uploader.start()
 	else:
-		logger.warning('ATTENTION: Running without remote host, so no data is being sent to server')
+		logger.warning('ATTENTION: Running without remote host, so no data is being sent to server!')
 	
 	try:
 		while True:
 			time.sleep(0.1)
 	except KeyboardInterrupt:
+		logger.info('Detected keyboard interrupt. Terminating Daemons. Please wait.')
 		is_running.clear()
-		serial_reader.join()
+		# logger.info('Killing reader daemon')
+		# serial_reader.join()
+		# logger.info('Reading daemon is dead')
+		# logger.info('Killing upload daemon')
+
+		# uploader.join()
 
