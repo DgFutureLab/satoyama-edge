@@ -117,8 +117,10 @@ def read_serial(name, is_running):
 	serial_connection.close()
 	logger.info("Serial port closed.")
 
+
 def get_timeout(data_size):
         return 0.1 * float(data_size)
+
 
 def upload_daemon(name, is_running):
 	logger.debug('Running %s daemon'%name)
@@ -130,7 +132,6 @@ def upload_daemon(name, is_running):
 
 		if queue.empty():
 			time.sleep(UPLOAD_INTERVAL)
-			# is_running.wait(UPLOAD_INTERVAL)
 			logger.debug('Sleeping %s seconds'%UPLOAD_INTERVAL)
 		else:
 			request_payload = prepare_data_in_queue()
