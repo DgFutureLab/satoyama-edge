@@ -26,16 +26,18 @@ logger.addHandler(streamhandler)
 
 def open_serial_device():
 	def open_device(device_name):
+		logger.info('DEVICCCCCCCCCCCCCCCE::: %s'%device_name)
 		try:
 			logger.info('Trying to open device %s'%device_name)
 			device = serial.Serial(device_name, BAUDRATE, timeout = 1)
 			if device.isOpen():
 				logger.info('Device %s is open.'%device_name)
+				logger.info(device)
 				return device
 			else:
-				return None
+				os._exit(1)
 		except OSError:
-			return None
+			os._exit(1)
 
 
 	if DEVICE_NAME:
@@ -82,12 +84,12 @@ def parse_reading(reading):
 def read_serial(name, is_running):
 	logger.debug('Running %s daemon'%name)
 	serial_connection = open_serial_device()
+
 	previous_reading = ''
 
 	while is_running.isSet():
 		if not is_running.isSet(): 
 			logger.info('%s got KILL signal! Please wait.'%name)
-		print 'waiting'
 		try:
 			reading = serial_connection.readline()
 			logger.debug('From serial: %s'%reading)
@@ -245,10 +247,3 @@ if __name__ == "__main__":
 	except KeyboardInterrupt:
 		logger.info('Detected keyboard interrupt. Terminating Daemons. Please wait.')
 		is_running.clear()
-		# logger.info('Killing reader daemon')
-		# serial_reader.join()
-		# logger.info('Reading daemon is dead')
-		# logger.info('Killing upload daemon')
-
-		# uploader.join()
-
