@@ -19,6 +19,8 @@ Satoyama edge router stack: Raspberry pie, noobs and python
 9. sudo apt-get update
 10. sudo apt-get install python-setuptools
 11. git clone https://github.com/DgFutureLab/satoyama-edge.git (If your NOOBs does not have git installed, install it before using apt-get)
+12. sudo easy_install pip
+13. sudo pip install requests
 
 ## Run edge router
 The run_edge.py script launches two processes. One constantly listens to the serial port and parses the data from the Chibi connected to the raspi. The other process uploads the information to a webserver with regular intervals. 
