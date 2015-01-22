@@ -1,8 +1,8 @@
 satoyama-edge
 =============
-Satoyama edge router stack: Raspberry pie, noobs and python
+The edge node consists of a chibi and a Raspberry Pi. The Chibi forwards everything it receives on the radio to the raspi via a serial port, and the raspi parses the input and uploads the data to satoyama-api. 
 
-## Installation
+# Installation
 
 ## NOOBS installation
 
@@ -21,6 +21,9 @@ Satoyama edge router stack: Raspberry pie, noobs and python
 11. git clone https://github.com/DgFutureLab/satoyama-edge.git (If your NOOBs does not have git installed, install it before using apt-get)
 12. sudo easy_install pip
 13. sudo pip install requests
+
+## Setup Chibi
+Upload aggregator.ino to the chibi and connect the chibi to the raspberry pi with a USB cable.
 
 ## Run edge router
 The run_edge.py script launches two processes. One constantly listens to the serial port and parses the data from the Chibi connected to the raspi. The other process uploads the information to a webserver with regular intervals. 
