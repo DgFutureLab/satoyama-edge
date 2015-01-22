@@ -7,7 +7,7 @@ Satoyama edge router stack: Raspberry pie, noobs and python
 ## NOOBS installation
 
 1. Format the SD Card using SDFormatter.
-2. Download the latest NOOBS version.
+2. Download the latest NOOBS version. (You may find it here: http://www.raspberrypi.org/downloads/ )
 3. Insert the SD Card in the Raspberry Pi
 4. Connect HDMI cable, RJ45 network cable, keyboard and power supply cable to the raspberry pie
 5. Follow the installation instructions for Raspbian (The Raspberry OS). This is the first screen that you will see:.
