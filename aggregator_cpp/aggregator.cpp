@@ -4,7 +4,7 @@
   
   Written by Halfdan Rump for Future Lab. Based on code written by Christopher Wang aka Akiba.
 */
-
+//#include <WProgram.h>
 #include <chibi.h>
 #include <config.h>
 
@@ -28,10 +28,13 @@ void loop()
     if (len == 0) {
       return;
     } else{
-      printBufferToSerial(src_addr, buf);
+      int hum = 0;
+	//printBufferToSerial(src_addr, buf);
     }
   }
 }
+
+/*
 
 void printBufferAsAscii(byte *buf){
   for(int i=0; i<=3; i++){
@@ -47,3 +50,4 @@ void printBufferToSerial(int src_addr, byte *buf){
   Serial.print("@");
   Serial.println((char*)buf);
 }
+*/
