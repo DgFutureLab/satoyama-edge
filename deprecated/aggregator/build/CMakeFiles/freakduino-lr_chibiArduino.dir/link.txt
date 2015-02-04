@@ -1,2 +1,0 @@
-/usr/local/CrossPack-AVR/bin/avr-ar cr libfreakduino-lr_chibiArduino.a  CMakeFiles/freakduino-lr_chibiArduino.dir/Users/halfdan-rump/Documents/Arduino/libraries/chibiArduino/chibi.cpp.obj
-/usr/local/CrossPack-AVR/bin/avr-ranlib libfreakduino-lr_chibiArduino.a

@@ -1,1 +1,0 @@
-/usr/local/CrossPack-AVR/bin/avr-g++   -g -Os       -mcall-prologues -ffunction-sections -fdata-sections -fno-exceptions  -Wl,--gc-sections -lm -mmcu=atmega328p    -o chibi_aggregator.elf  -L/Users/halfdan-rump/Documents/Arduino/libraries/chibiArduino  libfreakduino-lr_chibiArduino.a libfreakduino-lr_CORE.a -lc -lm 
