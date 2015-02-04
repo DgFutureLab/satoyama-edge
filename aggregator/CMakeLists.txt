@@ -1,4 +1,5 @@
 # Path to your arduino-cmake directory
+set(SATOYAMA_LIBS ${CMAKE_CURRENT_SOURCE_DIR}/../satoyama-libs)
 set(CMAKE_ARDUINO_PATH /Users/halfdan-rump/projects/learning/arduino-cmake-master)
 #set(CMAKE_MODULE_PATH ${CMAKE_ARDUINO_PATH}/cmake/modules) # CMake module search path
 set(CMAKE_MODULE_PATH ${CMAKE_ARDUINO_PATH}/cmake/Platform/Arduino.cmake) # CMake module search path
@@ -14,8 +15,13 @@ cmake_minimum_required(VERSION 2.8)
 # Set a variable for commands below
 set(PROJECT_NAME chibi_aggregator)
 
+message(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQQQQQQQQQQQQQQ)
+message(${CMAKE_CURRENT_SOURCE_DIR})
+message(${SATOYAMA_LIBS})
+link_directories(${SATOYAMA_LIBS}/chibiArduino-master/)
 
-link_directories(/Users/halfdan-rump/Documents/Arduino/libraries/chibiArduino/)
+#link_directories(${SATOYAMA_LIBS}/chibiArduino-master/)
+#link_directories(/Users/halfdan-rump/Documents/Arduino/libraries/chibiArduino/)
 link_directories(/Users/halfdan-rump/Documents/Arduino/libraries/SatoyamaChibiLib/)
 # Define your project and language
 project(${PROJECT_NAME} C CXX)
