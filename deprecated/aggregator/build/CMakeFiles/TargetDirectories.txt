@@ -1,0 +1,6 @@
+/Users/halfdan-rump/projects/satoyama/satoyama-edge/aggregator/build/CMakeFiles/chibi_aggregator.dir
+/Users/halfdan-rump/projects/satoyama/satoyama-edge/aggregator/build/CMakeFiles/chibi_aggregator-size.dir
+/Users/halfdan-rump/projects/satoyama/satoyama-edge/aggregator/build/CMakeFiles/chibi_aggregator-upload.dir
+/Users/halfdan-rump/projects/satoyama/satoyama-edge/aggregator/build/CMakeFiles/freakduino-lr_CORE.dir
+/Users/halfdan-rump/projects/satoyama/satoyama-edge/aggregator/build/CMakeFiles/freakduino-lr_chibiArduino.dir
+/Users/halfdan-rump/projects/satoyama/satoyama-edge/aggregator/build/CMakeFiles/upload.dir
