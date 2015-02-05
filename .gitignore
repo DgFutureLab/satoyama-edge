@@ -2,3 +2,4 @@ log.txt
 *.pyc
 aggregator_cpp/build/
 aggregator/build/
+*.swp
