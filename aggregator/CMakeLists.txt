@@ -1,7 +1,7 @@
 # Path to your arduino-cmake directory
 set(SATOYAMA_LIBS ${CMAKE_CURRENT_SOURCE_DIR}/../satoyama-libs)
-set(CMAKE_ARDUINO_PATH /Users/halfdan-rump/projects/learning/arduino-cmake-master)
-#set(CMAKE_ARDUINO_PATH ${SATOYAMA_LIBS}/arduino-cmake)
+#set(CMAKE_ARDUINO_PATH /Users/halfdan-rump/projects/learning/arduino-cmake-master)
+set(CMAKE_ARDUINO_PATH ${SATOYAMA_LIBS}/arduino-cmake)
 message(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQQQQQQQQQQQQQQ)
 message(${CMAKE_CURRENT_SOURCE_DIR})
 message(${SATOYAMA_LIBS})
@@ -20,10 +20,14 @@ cmake_minimum_required(VERSION 2.8)
 set(PROJECT_NAME chibi_aggregator)
 
 link_directories(${SATOYAMA_LIBS}/chibiArduino-master/)
+link_directories(${SATOYAMA_LIBS}/SatoyamaChibiLib/)
 
 #link_directories(${SATOYAMA_LIBS}/chibiArduino-master/)
 #link_directories(/Users/halfdan-rump/Documents/Arduino/libraries/chibiArduino/)
-link_directories(/Users/halfdan-rump/Documents/Arduino/libraries/SatoyamaChibiLib/)
+
+
+#link_directories(/Users/halfdan-rump/Documents/Arduino/libraries/SatoyamaChibiLib/)
+
 # Define your project and language
 project(${PROJECT_NAME} C CXX)
 
@@ -33,7 +37,7 @@ project(${PROJECT_NAME} C CXX)
 ###################################################################
 
 register_hardware_platform(/Applications/Arduino.app/Contents/Resources/Java/hardware/mighty-1284p-freaklabs)
-print_board_list()
+#print_board_list()
 
 
 #find_package(Arduino 1.0 REQUIRED)
@@ -49,4 +53,4 @@ set(${PROJECT_NAME}_SRCS aggregator.cpp)
 set(${PROJECT_NAME}_PORT /dev/ttyUSB0)
 
 # Command to generate code arduino firmware (.hex file)
-#generate_arduino_firmware(${PROJECT_NAME})
+generate_arduino_firmware(${PROJECT_NAME})

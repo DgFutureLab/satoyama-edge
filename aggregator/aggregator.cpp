@@ -5,8 +5,7 @@
   Written by Halfdan Rump for Future Lab. Based on code written by Christopher Wang aka Akiba.
 */
 //#include <WProgram.h>
-#include <chibi.h>
-#include <config.h>
+#include <satoyama_config.h>
 
 void setup()
 {
