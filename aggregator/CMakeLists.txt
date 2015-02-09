@@ -26,10 +26,10 @@ project(${PROJECT_NAME} C CXX)
 ###   ADD ALL ARDUINO-CMAKE COMMANDS AFTER THIS
 ###################################################################
 
-set(${PROJECT_NAME}_BOARD freakduino-lr)
-register_hardware_platform(/Applications/Arduino.app/Contents/Resources/Java/hardware/mighty-1284p-freaklabs)
+#set(${PROJECT_NAME}_BOARD freakduino-lr)
+set(${PROJECT_NAME}_BOARD pro328)
+#register_hardware_platform(/Applications/Arduino.app/Contents/Resources/Java/hardware/mighty-1284p-freaklabs)
 #print_board_list()
-
 
 # Define the source code
 set(${PROJECT_NAME}_SRCS aggregator.cpp)
