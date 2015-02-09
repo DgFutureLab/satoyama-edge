@@ -6,7 +6,8 @@
 */
 //#include <WProgram.h>
 #include <satoyama_config.h>
-
+#include <chibi.h>
+#include <SPI.h>
 void setup()
 {
   Serial.begin(57600);
