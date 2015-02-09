@@ -27,6 +27,15 @@ The edge node consists of a chibi and a Raspberry Pi. The Chibi forwards everyth
 ## Setup Chibi
 Upload aggregator.ino to the chibi and connect the chibi to the raspberry pi with a USB cable.
 
+## Setup build system with CMake
+1. Install CMake
+2. Change directory into satoyama-edge/aggegrator
+3. mkdir build
+4. cd build
+5. rm -r * && cmake .. -Wno-dev && make && make upload
+
+DO NOT RUN THIS COMMAND ANYWHERE ELSE!!!
+
 ## Run edge router
 The run_edge.py script launches two processes. One constantly listens to the serial port and parses the data from the Chibi connected to the raspi. The other process uploads the information to a webserver with regular intervals. 
 
