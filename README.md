@@ -19,8 +19,10 @@ The edge node consists of a chibi and a Raspberry Pi. The Chibi forwards everyth
 9. sudo apt-get update
 10. sudo apt-get install python-setuptools
 11. git clone https://github.com/DgFutureLab/satoyama-edge.git (If your NOOBs does not have git installed, install it before using apt-get)
-12. sudo easy_install pip
-13. sudo pip install -r requirements.txt
+12. cd satoyama-edge
+13. git submodule update --init --recursive
+14. sudo easy_install pip
+15. sudo pip install -r requirements.txt
 
 ## Setup Chibi
 Upload aggregator.ino to the chibi and connect the chibi to the raspberry pi with a USB cable.
@@ -31,5 +33,3 @@ The run_edge.py script launches two processes. One constantly listens to the ser
 12. cd satoayama-edge
 13. python run_edge.py --help
 13. python run_edge.py --host <your.host.name> --port
-
-
