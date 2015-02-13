@@ -1,3 +1,6 @@
 log.txt
 *.pyc
 .DS_Store
+aggregator_cpp/build/
+aggregator/build/
+*.swp
