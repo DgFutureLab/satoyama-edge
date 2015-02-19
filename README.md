@@ -28,13 +28,14 @@ The edge node consists of a chibi and a Raspberry Pi. The Chibi forwards everyth
 Upload aggregator.ino to the chibi and connect the chibi to the raspberry pi with a USB cable.
 
 ## Setup build system with CMake
-1. Install CMake
-2. Change directory into satoyama-edge/aggegrator
-3. mkdir build
-4. cd build
-5. rm -r * && cmake .. -Wno-dev && make && make upload
+Before we wrote the sketches using the Arduino GUI, but now we use standard CMake to generate make files.
 
-DO NOT RUN THIS COMMAND ANYWHERE ELSE!!!
+1. Install CMake (e.g. brew install cmake on OSX)
+2. Change directory into satoyama-edge/aggegrator
+3. mkdir build (all the build files will be stored in this directory)
+4. Navigate to build directory: cd build 
+5. compile source code and upload to the device: cmake .. -Wno-dev && make && make upload (make sure that the build directory is empty, as CMake will complain otherwise)
+6. Use screen to monitor output from the serial device (e.g. tty.usbserial-A501K9HW): /dev/tty.usbserial-A501K9HW 57600,sc8
 
 ## Run edge router
 The run_edge.py script launches two processes. One constantly listens to the serial port and parses the data from the Chibi connected to the raspi. The other process uploads the information to a webserver with regular intervals. 
