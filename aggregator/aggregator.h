@@ -1,0 +1,1 @@
+void printBufferToSerial(int src_addr, uint8_t *buf);
