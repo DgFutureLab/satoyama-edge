@@ -35,7 +35,11 @@ set(${PROJECT_NAME}_BOARD pro328)
 set(${PROJECT_NAME}_SRCS aggregator.cpp)
 
 # Define the port for uploading code to the Arduino
-set(${PROJECT_NAME}_PORT /dev/tty.usbserial-A501KA6M)
+IF(APPLE)
+  set(${PROJECT_NAME}_PORT /dev/tty.usbserial-A90178AU)
+ELSE()
+  set(${PROJECT_NAME}_PORT /dev/tty.usbserial-A501KA6M)
+ENDIF()
 
 # Command to generate code arduino firmware (.hex file)
 generate_arduino_firmware(${PROJECT_NAME})
