@@ -26,17 +26,25 @@ project(${PROJECT_NAME} C CXX)
 ###   ADD ALL ARDUINO-CMAKE COMMANDS AFTER THIS
 ###################################################################
 
+
 set(${PROJECT_NAME}_BOARD freakduino-lr)
 #register_hardware_platform(/Applications/Arduino.app/Contents/Resources/Java/hardware/mighty-1284p-freaklabs)
 register_hardware_platform(${SATOYAMA_LIBS}/mighty-1284p-freaklabs)
-#print_board_list()
 
+#set(${PROJECT_NAME}_BOARD freakduino-lr)
+#set(${PROJECT_NAME}_BOARD pro328)
+#register_hardware_platform(/Applications/Arduino.app/Contents/Resources/Java/hardware/mighty-1284p-freaklabs)
+#print_board_list()
 
 # Define the source code
 set(${PROJECT_NAME}_SRCS aggregator.cpp)
 
 # Define the port for uploading code to the Arduino
-set(${PROJECT_NAME}_PORT /dev/tty.usbserial-A501KA6M)
+IF(APPLE)
+  set(${PROJECT_NAME}_PORT /dev/tty.usbserial-A90178AU)
+ELSE()
+  set(${PROJECT_NAME}_PORT /dev/tty.usbserial-A501KA6M)
+ENDIF()
 
 # Command to generate code arduino firmware (.hex file)
 generate_arduino_firmware(${PROJECT_NAME})
