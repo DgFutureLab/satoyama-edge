@@ -27,7 +27,8 @@ project(${PROJECT_NAME} C CXX)
 ###################################################################
 
 set(${PROJECT_NAME}_BOARD freakduino-lr)
-register_hardware_platform(/Applications/Arduino.app/Contents/Resources/Java/hardware/mighty-1284p-freaklabs)
+#register_hardware_platform(/Applications/Arduino.app/Contents/Resources/Java/hardware/mighty-1284p-freaklabs)
+register_hardware_platform(${SATOYAMA_LIBS}/mighty-1284p-freaklabs)
 #print_board_list()
 
 
