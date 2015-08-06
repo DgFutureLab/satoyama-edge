@@ -71,7 +71,7 @@ void loop()
     delay(1000);
   }
   
-
+  Serial.print(F("Free RAM before send_data: ")); Serial.println(getFreeRam(), DEC);
   send_data((char*) buf);
   
   
@@ -101,11 +101,12 @@ void printBufferToSerial(int src_addr, byte *buf){
 
 
 void send_data(char data[]){
+  Serial.println("Just in send_data");
   char data_len_str[15];
-  sprintf(data_len_str, "%d", strlen(data));
+  sprintf(data_len_str, "%d", strlen(data) + 5);
 
   Adafruit_CC3000_Client www = cc3000.connectTCP(ip, 80);
-  
+  Serial.print(F("Free RAM before send: ")); Serial.println(getFreeRam(), DEC);
   if (www.connected()) {
 //      www.fastrprint(F("POST /reading HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: 21\r\nAccept: */*\r\nConnection: keep-alive\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nsensor_id=2&value=28"));
       www.fastrprint(F("POST /readings HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: "));
@@ -115,6 +116,7 @@ void send_data(char data[]){
       www.fastrprint(data);
 //      root.printTo(www);
       www.println();
+      Serial.print(F("Free RAM after send: ")); Serial.println(getFreeRam(), DEC);
   } else {
     Serial.println(F("Connection failed"));    
     return;
@@ -133,7 +135,7 @@ void send_data(char data[]){
   }
   www.close();
   Serial.println(F("-------------------------------------"));
-  wifi_disconnect();  
+  Serial.print(F("Free RAM after close: ")); Serial.println(getFreeRam(), DEC);
 }
 
 
