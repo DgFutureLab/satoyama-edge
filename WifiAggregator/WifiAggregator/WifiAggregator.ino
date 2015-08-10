@@ -56,38 +56,40 @@ void setup(void)
   chibiInit();
   chibiSetShortAddr(AGGREGATOR_SHORT_ADDRESS);
   wifi_connect();
+    // this is where we store the received data
 }
 
-
+byte buf[TX_LENGTH];
 void loop()
 { 
-  byte buf[TX_LENGTH];  // this is where we store the received data
   memset(buf, 0, TX_LENGTH);
-  
+  Serial.print(F("Free RAM after buf: ")); Serial.println(getFreeRam(), DEC);
   for(int i = 0; i<5; i++){
     Reading battery_voltage = {"vbat", 2, millis()};
     add_to_tx_buf((char*) buf, &battery_voltage);
-//    Serial.println((char *)buf);
+
     delay(1000);
   }
+  Serial.println((char *)buf);
+  Serial.print(F("Free RAM after readings: ")); Serial.println(getFreeRam(), DEC);
   
   Serial.print(F("Free RAM before send_data: ")); Serial.println(getFreeRam(), DEC);
   send_data((char*) buf);
   
   
-  
-  if (chibiDataRcvd() == true){ 
-    int rssi = chibiGetRSSI();
-    int src_addr = chibiGetSrcAddr();
-    int len = chibiGetData(buf);
-    if (len == 0) {
-      return;
-    } else{
-      printBufferToSerial(src_addr, buf);
-    }
-  }
-  free(buf);
-
+//  Serial.print(F("Free RAM before free buf: ")); Serial.println(getFreeRam(), DEC);
+//  if (chibiDataRcvd() == true){ 
+//    int rssi = chibiGetRSSI();
+//    int src_addr = chibiGetSrcAddr();
+//    int len = chibiGetData(buf);
+//    if (len == 0) {
+//      return;
+//    } else{
+//      printBufferToSerial(src_addr, buf);
+//    }
+//  }
+//  free(buf);
+//  Serial.print(F("Free RAM after free buf: ")); Serial.println(getFreeRam(), DEC);
 }
 
 
@@ -103,8 +105,9 @@ void printBufferToSerial(int src_addr, byte *buf){
 void send_data(char data[]){
   Serial.println("Just in send_data");
   char data_len_str[15];
+  Serial.println("A");
   sprintf(data_len_str, "%d", strlen(data) + 5);
-
+  Serial.println("B");
   Adafruit_CC3000_Client www = cc3000.connectTCP(ip, 80);
   Serial.print(F("Free RAM before send: ")); Serial.println(getFreeRam(), DEC);
   if (www.connected()) {
@@ -121,7 +124,7 @@ void send_data(char data[]){
     Serial.println(F("Connection failed"));    
     return;
   }
-
+  free(data_len_str);
   Serial.println(F("-------------------------------------"));
   
   /* Read data until either the connection is closed, or the idle timeout is reached. */ 
