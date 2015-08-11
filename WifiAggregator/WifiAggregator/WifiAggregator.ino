@@ -1,6 +1,6 @@
 
 #include <chibi.h>
-#include <chibi.h>
+//#include <chibi.h>
 #include <config.h>
 #include <Adafruit_CC3000.h>
 #include <ccspi.h>
@@ -79,12 +79,14 @@ void loop()
   
 //  Serial.print(F("Free RAM before free buf: ")); Serial.println(getFreeRam(), DEC);
 //  if (chibiDataRcvd() == true){ 
+//    Serial.println(F("chibiDataRcvd"));
 //    int rssi = chibiGetRSSI();
 //    int src_addr = chibiGetSrcAddr();
 //    int len = chibiGetData(buf);
 //    if (len == 0) {
 //      return;
 //    } else{
+//      Serial.println(F("printBufferToSerial"));
 //      printBufferToSerial(src_addr, buf);
 //    }
 //  }
@@ -107,16 +109,22 @@ void send_data(char data[]){
   char data_len_str[15];
   Serial.println("A");
   sprintf(data_len_str, "%d", strlen(data) + 5);
-  Serial.println("B");
+  Serial.print("Content length: ");
+  Serial.println(data_len_str);
   Adafruit_CC3000_Client www = cc3000.connectTCP(ip, 80);
   Serial.print(F("Free RAM before send: ")); Serial.println(getFreeRam(), DEC);
   if (www.connected()) {
+      Serial.println(F("1"));
 //      www.fastrprint(F("POST /reading HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: 21\r\nAccept: */*\r\nConnection: keep-alive\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nsensor_id=2&value=28"));
       www.fastrprint(F("POST /readings HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: "));
+      Serial.println(F("2"));
       www.fastrprint(data_len_str);
+      Serial.println(F("3"));
 //      1,2.33,2015-8-6;2,5.66,2015-8-7 22:00:01
       www.fastrprint(F("\r\nAccept: */*\r\nConnection: keep-alive\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\ndata="));
+      Serial.println(F("4"));
       www.fastrprint(data);
+      Serial.println(F("5"));
 //      root.printTo(www);
       www.println();
       Serial.print(F("Free RAM after send: ")); Serial.println(getFreeRam(), DEC);
