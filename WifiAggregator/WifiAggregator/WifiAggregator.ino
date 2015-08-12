@@ -19,12 +19,12 @@
 Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT,
                                          SPI_CLOCK_DIVIDER); // you can change this clock speed
 
-#define WLAN_SSID       "HWD15_F49FF3ED0D6D"           // cannot be longer than 32 characters!
-#define WLAN_PASS       "10ii3ybg21f8317"
+//#define WLAN_SSID       "HWD15_F49FF3ED0D6D"           // cannot be longer than 32 characters!
+//#define WLAN_PASS       "10ii3ybg21f8317"
 //#define WLAN_SSID       "FutureLab"           // cannot be longer than 32 characters!
 //#define WLAN_PASS       "tacobeya11"
-//#define WLAN_SSID       "AirPort25512"           // cannot be longer than 32 characters!
-//#define WLAN_PASS       "1739818891249"
+#define WLAN_SSID       "AirPort25512"           // cannot be longer than 32 characters!
+#define WLAN_PASS       "1739818891249"
 // Security can be WLAN_SEC_UNSEC, WLAN_SEC_WEP, WLAN_SEC_WPA or WLAN_SEC_WPA2
 #define WLAN_SECURITY   WLAN_SEC_WPA2
 
@@ -49,6 +49,7 @@ Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ
 /**************************************************************************/
 
 uint32_t ip;
+int counter = 0;
 
 void setup(void)
 {
@@ -62,6 +63,10 @@ void setup(void)
 byte buf[TX_LENGTH];
 void loop()
 { 
+  Serial.println();
+  Serial.print("Counter: ");
+  Serial.println(counter);
+  counter += 1;
   memset(buf, 0, TX_LENGTH);
   Serial.print(F("Free RAM after buf: ")); Serial.println(getFreeRam(), DEC);
   for(int i = 0; i<5; i++){
@@ -113,23 +118,44 @@ void send_data(char data[]){
   Serial.println(data_len_str);
   Adafruit_CC3000_Client www = cc3000.connectTCP(ip, 80);
   Serial.print(F("Free RAM before send: ")); Serial.println(getFreeRam(), DEC);
+
   if (www.connected()) {
       Serial.println(F("1"));
+//      char buf = "POST /readings HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: 29\r\nAccept: */*\r\nConnection: keep-alive\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\ndata=1,2.5,2015-8-10 16:46:13";
 //      www.fastrprint(F("POST /reading HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: 21\r\nAccept: */*\r\nConnection: keep-alive\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nsensor_id=2&value=28"));
-      www.fastrprint(F("POST /readings HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: "));
-      Serial.println(F("2"));
-      www.fastrprint(data_len_str);
-      Serial.println(F("3"));
-//      1,2.33,2015-8-6;2,5.66,2015-8-7 22:00:01
+//        www.fastrprint(F("POST /readings HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: 29\r\nAccept: */*\r\nConnection: keep-alive\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\ndata=1,2.5,2015-8-10 16:46:13"));
+//        char *buf = "POST /readings HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: 29\r\nAccept: */*\r\nConnection: keep-alive\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\ndata=1,2.5,2015-8-10 16:46:13";
+//        www.print(F("POST /readings HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: 29\r\nAccept: */*\r\nConnection: keep-alive\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\ndata=1,2.5,2015-8-10 16:46:13"));
+//        int len = strlen(buf);
+//        for(int i = 0; i < len; i++){
+//          Serial.print(buf[i]);
+//          www.print(buf[i]);
+//        }
+//        www.println(F("POST /readings HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: 29\r\nAccept: */*\r\nConnection: keep-alive\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\ndata=1,2.5,2015-8-10 16:46:13"));
+      www.fastrprint(F("POST /readings HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: 29"));
+      delay(100);
+//      Serial.println(F("2"));
+//      www.fastrprint(data_len_str);
+//      Serial.println(F("3"));
+////      1,2.33,2015-8-6;2,5.66,2015-8-7 22:00:01
       www.fastrprint(F("\r\nAccept: */*\r\nConnection: keep-alive\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\ndata="));
-      Serial.println(F("4"));
-      www.fastrprint(data);
-      Serial.println(F("5"));
-//      root.printTo(www);
+      delay(100);
+      char * um = "1,2.5,2015-8-10 16:46:13";
+      www.fastrprint(um);
+      delay(100);
+//      Serial.println(F("4"));
+//      www.fastrprint(data);
+//      Serial.println(F("5"));
+////      root.printTo(www);
+//  delay(1)
       www.println();
       Serial.print(F("Free RAM after send: ")); Serial.println(getFreeRam(), DEC);
   } else {
-    Serial.println(F("Connection failed"));    
+    Serial.println(F("Connection failed"));
+    www.close();
+    wifi_disconnect();
+    delay(5000);
+    wifi_connect();
     return;
   }
   free(data_len_str);
