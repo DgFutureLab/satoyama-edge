@@ -107,6 +107,33 @@ void printBufferToSerial(int src_addr, byte *buf){
   Serial.println((char*)buf);
 }
 
+void read_dht(char * buf){
+  int chk;
+  Serial.print("DHT11, \t");
+  chk = DHT.read(DHT11_PIN);    // READ DATA
+  switch (chk){
+    case DHTLIB_OK:  
+                Serial.print("OK,\t"); 
+                break;
+    case DHTLIB_ERROR_CHECKSUM: 
+                Serial.print("Checksum error,\t"); 
+                break;
+    case DHTLIB_ERROR_TIMEOUT: 
+                Serial.print("Time out error,\t"); 
+                break;
+    default: 
+                Serial.print("Unknown error,\t"); 
+                break;
+  }
+ // DISPLAT DATA
+  Serial.print(DHT.humidity,1);
+  Serial.print(",\t");
+  Serial.println(DHT.temperature,1);
+
+  delay(1000);
+}
+
+
 
 
 void send_data(char data[]){
@@ -133,15 +160,19 @@ void send_data(char data[]){
 //        }
 //        www.println(F("POST /readings HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: 29\r\nAccept: */*\r\nConnection: keep-alive\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\ndata=1,2.5,2015-8-10 16:46:13"));
       www.fastrprint(F("POST /readings HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: 29"));
+      Serial.println(F("2"));
       delay(100);
+      
 //      Serial.println(F("2"));
 //      www.fastrprint(data_len_str);
 //      Serial.println(F("3"));
 ////      1,2.33,2015-8-6;2,5.66,2015-8-7 22:00:01
-      www.fastrprint(F("\r\nAccept: */*\r\nConnection: keep-alive\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\ndata="));
+      www.fastrprint(F("\r\nAccept: */*\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\ndata="));
+      Serial.println(F("3"));
       delay(100);
       char * um = "1,2.5,2015-8-10 16:46:13";
       www.fastrprint(um);
+      Serial.println(F("4"));
       delay(100);
 //      Serial.println(F("4"));
 //      www.fastrprint(data);
