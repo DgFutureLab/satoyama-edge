@@ -30,7 +30,7 @@ Adafruit_CC3000 cc3000= Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ,
 
 #define NODE_ID 1
 
-#define BUFSIZE 100
+#define BUFSIZE 400
 #define WIFI_TX_CHUNK_SIZE 50
 #define REPLY_SIZE 50
 
@@ -55,7 +55,6 @@ void setup(void)
   memset(buf, 0, BUFSIZE);
   chibiInit();
   chibiSetShortAddr(NODE_ID);
-  Serial.println(printf("Short address: %d", chibiGetShortAddr()));
   Serial.begin(115200);
   Serial.println("Connecting");
   wifi_connect();
@@ -65,26 +64,33 @@ void setup(void)
 void loop()
 { 
 //  strcat(buf, "sssssssssssssssssssssssssssssssssssssss");
-  chibi_recv(buf);
-  if(strlen(buf) > 10){
-    Serial.print("buffer: ");
-    Serial.println(buf);
+//  chibi_recv(buf);
+  strcat(buf, F("asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd"));
+  Serial.print("Buffer: ");
+  Serial.println(buf);
+  if(strlen(buf) > 0){
+//    Serial.print("buffer: ");
+//    Serial.println(F("asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd"));
     Serial.println("Sending data");
     send_data(buf);
     memset(buf, 0, BUFSIZE);
   }
-  
+
   delay(100);
+
 }
 
 
 void chibi_recv(char *buf){
   memset(tmp, 0, 100);
   if (chibiDataRcvd() == true){ 
+    Serial.println("DATA RECEIVED");
     int rssi = chibiGetRSSI();
     int src_addr = chibiGetSrcAddr();
     int len = chibiGetData((byte*)tmp);
     strcat(buf, tmp);
+  } else{
+    Serial.println("NO DATA");
   }
 }
 
@@ -112,6 +118,8 @@ void send_data(char* buf){
       Serial.print("-");
       
       int chunks = floor(strlen(buf) / WIFI_TX_CHUNK_SIZE);
+      Serial.print("chunks: ");
+      Serial.println(chunks);
       int remaining = strlen(buf) - chunks * WIFI_TX_CHUNK_SIZE;
       for(int chunk = 0; chunk < chunks; chunk++){
         memset(tx_slice_buf, 0, WIFI_TX_CHUNK_SIZE);
