@@ -26,11 +26,12 @@ Adafruit_CC3000 cc3000= Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ,
                                    // you're accessing is quick to respond, you can reduce this value.
 
 #define WEBSITE      "satoyamacloud.com"
-#define WEBPAGE      "/reading"
+#define WEBPAGE      "/readings"
 
 #define NODE_ID 1
 
 #define BUFSIZE 100
+#define REPLY_SIZE 50
 
 /**************************************************************************/
 /*!
@@ -42,6 +43,10 @@ Adafruit_CC3000 cc3000= Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ,
 uint32_t ip;
 char buf[BUFSIZE];
 char tmp[100];
+char reply[REPLY_SIZE];
+char content_length[3];
+char http_args[] = "format=compact&data=";
+
 
 void setup(void)
 {
@@ -57,15 +62,16 @@ void setup(void)
 
 void loop()
 { 
+  strcat(buf, "sssssssssssssssssssssssssssssssssssssss");
   chibi_recv(buf);
-  if(strlen(buf) > 50){
+  if(strlen(buf) > 10){
     Serial.println("Sending data");
     send_data(buf);
     memset(buf, 0, BUFSIZE);
   }
   Serial.print("buffer: ");
   Serial.println(buf);
-  delay(1000);
+//  delay(1000);
 }
 
 
@@ -85,23 +91,29 @@ void send_data(char* buf){
   Serial.println(getFreeRam(), DEC);
   Adafruit_CC3000_Client www = cc3000.connectTCP(ip, 80);  
   Serial.println(getFreeRam(), DEC);
+  memset(content_length, 0, 3);
+  sprintf(content_length, "%d", strlen(buf) + strlen(http_args));
   if (www.connected()) {
     Serial.println("Connected.");
-      www.fastrprint(F("POST /readings HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: 205"));
+      www.fastrprint(F("POST /readings HTTP/1.1\r\nHost: satoyamacloud.com\r\nContent-Length: "));
+      www.fastrprint(content_length);
       delay(50);
       Serial.print("-");
       www.fastrprint(F("\r\nAccept: */*\r\nConnection: keep-alive\r\n"));
       delay(50);
       Serial.print("-");
-      www.fastrprint(F("Content-Type: application/x-www-form-urlencoded\r\n\r\ndata="));
-      delay(50);
+      www.fastrprint(F("Content-Type: application/x-www-form-urlencoded\r\n\r\n"));
+      www.fastrprint(http_args);
+      delay(100);
       Serial.print("-");
       
       
-      for(int j=0; j<5; j++){
+      
+      
+      for(int j=0; j<2; j++){
         www.fastrprint("1111111111111111111111111111111111111111");
         Serial.print(".");
-      delay(100);
+        delay(100);
    }
   } else {
     Serial.println("Not connected");
@@ -110,10 +122,13 @@ void send_data(char* buf){
   }
  
   /* Read data until either the connection is closed, or the idle timeout is reached. */ 
+  memset(reply, 0, REPLY_SIZE);
   unsigned long lastRead = millis();
-  while (www.connected() && (millis() - lastRead < IDLE_TIMEOUT_MS)) {
+  while (www.connected() && (millis() - lastRead < IDLE_TIMEOUT_MS) && (strlen(reply)< REPLY_SIZE)) {
     while (www.available()) {
       char c = www.read();
+//      int hum = 3;
+//      strcat(reply, c);
       Serial.print(c);
       lastRead = millis();
     }
