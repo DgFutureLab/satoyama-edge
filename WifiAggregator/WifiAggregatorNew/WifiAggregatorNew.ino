@@ -31,7 +31,9 @@ Adafruit_CC3000 cc3000= Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ,
 #define NODE_ID 1
 
 #define BUFSIZE 100
+#define WIFI_TX_CHUNK_SIZE 50
 #define REPLY_SIZE 50
+
 
 /**************************************************************************/
 /*!
@@ -46,7 +48,7 @@ char tmp[100];
 char reply[REPLY_SIZE];
 char content_length[3];
 char http_args[] = "format=compact&data=";
-
+char tx_slice_buf[WIFI_TX_CHUNK_SIZE + 1];
 
 void setup(void)
 {
@@ -62,16 +64,17 @@ void setup(void)
 
 void loop()
 { 
-  strcat(buf, "sssssssssssssssssssssssssssssssssssssss");
+//  strcat(buf, "sssssssssssssssssssssssssssssssssssssss");
   chibi_recv(buf);
   if(strlen(buf) > 10){
+    Serial.print("buffer: ");
+    Serial.println(buf);
     Serial.println("Sending data");
     send_data(buf);
     memset(buf, 0, BUFSIZE);
   }
-  Serial.print("buffer: ");
-  Serial.println(buf);
-//  delay(1000);
+  
+  delay(100);
 }
 
 
@@ -91,6 +94,7 @@ void send_data(char* buf){
   Serial.println(getFreeRam(), DEC);
   Adafruit_CC3000_Client www = cc3000.connectTCP(ip, 80);  
   Serial.println(getFreeRam(), DEC);
+  Serial.println(buf);
   memset(content_length, 0, 3);
   sprintf(content_length, "%d", strlen(buf) + strlen(http_args));
   if (www.connected()) {
@@ -107,14 +111,24 @@ void send_data(char* buf){
       delay(100);
       Serial.print("-");
       
+      int chunks = floor(strlen(buf) / WIFI_TX_CHUNK_SIZE);
+      int remaining = strlen(buf) - chunks * WIFI_TX_CHUNK_SIZE;
+      for(int chunk = 0; chunk < chunks; chunk++){
+        memset(tx_slice_buf, 0, WIFI_TX_CHUNK_SIZE);
+        memcpy(tx_slice_buf, &buf[chunk * WIFI_TX_CHUNK_SIZE], WIFI_TX_CHUNK_SIZE);
+        tx_slice_buf[WIFI_TX_CHUNK_SIZE] = '\0';
+        Serial.println(tx_slice_buf);
+      }
+      memset(tx_slice_buf, 0, WIFI_TX_CHUNK_SIZE);
+      memcpy(tx_slice_buf, &buf[chunks * WIFI_TX_CHUNK_SIZE], remaining);
+      tx_slice_buf[WIFI_TX_CHUNK_SIZE] = '\0';
+      Serial.println(tx_slice_buf);
       
-      
-      
-      for(int j=0; j<2; j++){
-        www.fastrprint("1111111111111111111111111111111111111111");
-        Serial.print(".");
-        delay(100);
-   }
+//      for(int j=0; j<2; j++){
+//        www.fastrprint("1111111111111111111111111111111111111111");
+//        Serial.print(".");
+//        delay(100);
+//     }
   } else {
     Serial.println("Not connected");
     www.close();
