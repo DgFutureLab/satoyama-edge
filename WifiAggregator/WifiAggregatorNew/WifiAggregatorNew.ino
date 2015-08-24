@@ -30,7 +30,7 @@ Adafruit_CC3000 cc3000= Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ,
 
 #define NODE_ID 1
 
-#define BUFSIZE 400
+#define BUFSIZE 200
 #define WIFI_TX_CHUNK_SIZE 50
 #define REPLY_SIZE 50
 
@@ -63,40 +63,36 @@ void setup(void)
 
 void loop()
 { 
-//  strcat(buf, "sssssssssssssssssssssssssssssssssssssss");
 //  chibi_recv(buf);
-  strcat(buf, F("asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd"));
-  Serial.print("Buffer: ");
-  Serial.println(buf);
+  strcat(buf, "hej med dig");
+  delay(1000);
   if(strlen(buf) > 0){
-//    Serial.print("buffer: ");
-//    Serial.println(F("asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd"));
-    Serial.println("Sending data");
     send_data(buf);
     memset(buf, 0, BUFSIZE);
   }
 
-  delay(100);
+//  delay(100);
 
 }
 
 
 void chibi_recv(char *buf){
-  memset(tmp, 0, 100);
+  
   if (chibiDataRcvd() == true){ 
-    Serial.println("DATA RECEIVED");
+    memset(tmp, 0, 100);
+//    Serial.println("DATA RECEIVED");
     int rssi = chibiGetRSSI();
     int src_addr = chibiGetSrcAddr();
     int len = chibiGetData((byte*)tmp);
+    Serial.println(tmp);
     strcat(buf, tmp);
-  } else{
-    Serial.println("NO DATA");
-  }
+  } 
 }
 
 
 
 void send_data(char* buf){
+  Serial.println(buf);
   Serial.println(getFreeRam(), DEC);
   Adafruit_CC3000_Client www = cc3000.connectTCP(ip, 80);  
   Serial.println(getFreeRam(), DEC);
@@ -131,12 +127,8 @@ void send_data(char* buf){
       memcpy(tx_slice_buf, &buf[chunks * WIFI_TX_CHUNK_SIZE], remaining);
       tx_slice_buf[WIFI_TX_CHUNK_SIZE] = '\0';
       Serial.println(tx_slice_buf);
+      www.println();
       
-//      for(int j=0; j<2; j++){
-//        www.fastrprint("1111111111111111111111111111111111111111");
-//        Serial.print(".");
-//        delay(100);
-//     }
   } else {
     Serial.println("Not connected");
     www.close();
