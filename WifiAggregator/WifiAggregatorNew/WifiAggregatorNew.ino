@@ -63,9 +63,7 @@ void setup(void)
 
 void loop()
 { 
-//  chibi_recv(buf);
-  strcat(buf, "hej med dig");
-  delay(1000);
+  chibi_recv(buf);
   if(strlen(buf) > 0){
     send_data(buf);
     memset(buf, 0, BUFSIZE);
@@ -86,7 +84,9 @@ void chibi_recv(char *buf){
     int len = chibiGetData((byte*)tmp);
     Serial.println(tmp);
     strcat(buf, tmp);
-  } 
+  } else{
+    strcat(buf, "hej med dig");  
+  }
 }
 
 
