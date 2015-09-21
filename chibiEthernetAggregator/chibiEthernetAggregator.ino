@@ -16,6 +16,8 @@
 
 #include <SPI.h>
 #include <Ethernet.h>
+#include <chibi.h>
+#define BUFSIZE 200
 
 // Enter a MAC address for your controller below.
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
@@ -27,7 +29,7 @@ char server[] = "satoyamacloud.com";    // name address for Google (using DNS)
 
 unsigned long lastConnectionTime = 0;          // last time you connected to the server, in milliseconds
 boolean lastConnected = false;                 // state of the connection last time through the main loop
-const unsigned long postingInterval = 5*1000;  // delay between updates, in milliseconds
+const unsigned long postingInterval = 12*1000;  // delay between updates, in milliseconds
 
 // Set the static IP address to use if the DHCP fails to assign
 IPAddress ip(192,168,0,177);
@@ -37,8 +39,14 @@ IPAddress ip(192,168,0,177);
 // that you want to connect to (port 80 is default for HTTP):
 EthernetClient client;
 
+char buf[BUFSIZE];
+char tmp[100];
+
 void setup() {
  // Open serial communications and wait for port to open:
+  memset(buf, 0, BUFSIZE);
+  chibiInit();
+  
   Serial.begin(9600);
    while (!Serial) {
     ; // wait for serial port to connect. Needed for Leonardo only
@@ -74,6 +82,28 @@ void loop() {
   // if there's incoming data from the net connection.
   // send it out the serial port.  This is for debugging
   // purposes only:
+  
+  
+  
+  if (chibiDataRcvd() == true){ 
+//    memset(buf, 0, BUFSIZE);
+    Serial.println("DATA RECEIVED");
+    int rssi = chibiGetRSSI();
+    int src_addr = chibiGetSrcAddr();
+    memset(tmp, 0, 100);
+    int len = chibiGetData((byte*)tmp);
+    strcat(buf, tmp);
+    Serial.println(buf);
+    Serial.println(strlen(buf));
+  } 
+  
+  if(strlen(buf) > BUFSIZE - 50){
+    Serial.print("Posting data: ");
+    Serial.println(buf);
+//    post_data(buf);
+    memset(buf, 0, BUFSIZE);
+  }
+  
   if (client.available()) {
     char c = client.read();
     Serial.print(c);
@@ -97,15 +127,16 @@ void loop() {
   lastConnected = client.connected();
 }
 
+
 // this method makes a HTTP connection to the server:
 void httpRequest() {
   // if there's a successful connection:
   if (client.connect(server, 80)) {
     Serial.println("connecting...");
     // send the HTTP PUT request:
-    client.println("GET /nodes HTTP/1.1");
+    client.println("GET / HTTP/1.1");
     client.println("Host: satoyamacloud.com");
-    client.println("User-Agent: arduino-ethernet");
+    client.println("User-Agent: arduino-ethernet-home");
     client.println("Connection: close");
     client.println();
 
