@@ -143,9 +143,10 @@ void post_data(char* buf) {
     client.println("Host: satoyamacloud.com");
     client.println("User-Agent: arduino-ethernet-home");
     client.println("Connection: close");
+    client.println("Content-Type: application/x-www-form-urlencoded");
     client.print("Content-length: ");
     client.println(data_length);
-    client.println();
+    client.print("\r\n");
     client.print(http_args);
     client.println(buf);
 
