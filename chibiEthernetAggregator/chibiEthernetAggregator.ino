@@ -41,6 +41,8 @@ EthernetClient client;
 
 char buf[BUFSIZE];
 char tmp[100];
+char data_length[3];
+char http_args[] = "format=compact&data=";
 
 void setup() {
  // Open serial communications and wait for port to open:
@@ -100,7 +102,7 @@ void loop() {
   if(strlen(buf) > BUFSIZE - 50){
     Serial.print("Posting data: ");
     Serial.println(buf);
-//    post_data(buf);
+    post_data(buf);
     memset(buf, 0, BUFSIZE);
   }
   
@@ -119,12 +121,43 @@ void loop() {
 
   // if you're not connected, and ten seconds have passed since
   // your last connection, then connect again and send data:
-  if(!client.connected() && (millis() - lastConnectionTime > postingInterval)) {
-    httpRequest();
-  }
+//  if(!client.connected() && (millis() - lastConnectionTime > postingInterval)) {
+//    httpRequest();
+//  }
   // store the state of the connection for next time through
   // the loop:
   lastConnected = client.connected();
+}
+
+void post_data(char* buf) {
+  // if there's a successful connection:
+  
+  
+  if (client.connect(server, 80)) {
+    memset(data_length, 0, 3);
+    sprintf(data_length, "%d", strlen(buf) + strlen(http_args));
+    
+    Serial.println("connecting...");
+    // send the HTTP PUT request:
+    client.println("POST /readings HTTP/1.1");
+    client.println("Host: satoyamacloud.com");
+    client.println("User-Agent: arduino-ethernet-home");
+    client.println("Connection: close");
+    client.print("Content-length: ");
+    client.println(data_length);
+    client.println();
+    client.print(http_args);
+    client.println(buf);
+
+    // note the time that the connection was made:
+    lastConnectionTime = millis();
+  } 
+  else {
+    // if you couldn't make a connection:
+    Serial.println("connection failed");
+    Serial.println("disconnecting.");
+    client.stop();
+  }
 }
 
 
