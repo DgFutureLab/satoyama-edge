@@ -39,6 +39,8 @@ IPAddress ip(192,168,0,177);
 // that you want to connect to (port 80 is default for HTTP):
 EthernetClient client;
 
+#define NODE_ID 1
+
 char buf[BUFSIZE];
 char tmp[100];
 char data_length[3];
@@ -48,8 +50,9 @@ void setup() {
  // Open serial communications and wait for port to open:
   memset(buf, 0, BUFSIZE);
   chibiInit();
+  chibiSetShortAddr(NODE_ID);
   
-  Serial.begin(9600);
+  Serial.begin(115200);
    while (!Serial) {
     ; // wait for serial port to connect. Needed for Leonardo only
   }
