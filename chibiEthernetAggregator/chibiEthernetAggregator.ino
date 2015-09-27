@@ -17,7 +17,7 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <chibi.h>
-#define BUFSIZE 200
+#define BUFSIZE 400
 
 // Enter a MAC address for your controller below.
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
@@ -66,30 +66,10 @@ void setup() {
   }
   // give the Ethernet shield a second to initialize:
   delay(1000);
-  Serial.println("connecting...");
-
-  // if you get a connection, report back via serial:
-  if (client.connect(server, 80)) {
-    Serial.println("connected");
-    // Make a HTTP request:
-    client.println("GET / HTTP/1.1");
-    client.println("Host: satoyamacloud.com");
-    client.println("Connection: close");
-    client.println();
-  } 
-  else {
-    // kf you didn't get a connection to the server:
-    Serial.println("connection failed");
-  }
 }
 
 void loop() {
-  // if there's incoming data from the net connection.
-  // send it out the serial port.  This is for debugging
-  // purposes only:
-  
-  
-  
+ 
   if (chibiDataRcvd() == true){ 
 //    memset(buf, 0, BUFSIZE);
     Serial.println("DATA RECEIVED");
@@ -102,7 +82,7 @@ void loop() {
     Serial.println(strlen(buf));
   } 
   
-  if(strlen(buf) > BUFSIZE - 50){
+  if(strlen(buf) > BUFSIZE - 100){
     Serial.print("Posting data: ");
     Serial.println(buf);
     post_data(buf);
@@ -165,28 +145,6 @@ void post_data(char* buf) {
 }
 
 
-// this method makes a HTTP connection to the server:
-void httpRequest() {
-  // if there's a successful connection:
-  if (client.connect(server, 80)) {
-    Serial.println("connecting...");
-    // send the HTTP PUT request:
-    client.println("GET / HTTP/1.1");
-    client.println("Host: satoyamacloud.com");
-    client.println("User-Agent: arduino-ethernet-home");
-    client.println("Connection: close");
-    client.println();
-
-    // note the time that the connection was made:
-    lastConnectionTime = millis();
-  } 
-  else {
-    // if you couldn't make a connection:
-    Serial.println("connection failed");
-    Serial.println("disconnecting.");
-    client.stop();
-  }
-}
 
 
 
