@@ -61,16 +61,25 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 IPAddress ip(192,168,1,15);
 
 // fill in your Domain Name Server address here:
-
-
 // initialize the library instance:
 EthernetClient client;
-
 char server[] = "satoyamacloud.com";
-
 unsigned long lastConnectionTime = 0;          // last time you connected to the server, in milliseconds
 boolean lastConnected = false;                 // state of the connection last time through the main loop
-const unsigned long postingInterval = 60*1000;  // delay between updates, in milliseconds
+const unsigned long postingInterval = 2*1000;  // delay between updates, in milliseconds
+
+
+/*
+  Timer stuff
+*/
+#include "TimerOne.h"
+void check_connection(){
+  Serial.print("Conneciton: ");
+  Serial.print(client.connected());
+  Serial.print(" ,status: ");
+  Serial.println(client.status(), HEX);
+}
+
 
 void setup() {
   Serial.begin(115200);
@@ -88,7 +97,17 @@ void setup() {
     Ethernet.begin(mac, ip);
   }
   Serial.println("Connection established!");
+  Timer1.initialize(5000000);
+  Timer1.attachInterrupt(check_connection);
 }
+
+
+
+void read_and_post(){
+ 
+}
+
+
 
 
 
@@ -117,7 +136,7 @@ void loop() {
     Serial.println((char*) buf);
     Serial.println("Sending HTTP request");
     post_data(buf);
-    Serial.println("P12");
+    Serial.println("P14");
 //    httpRequest();
   }
   // store the state of the connection for next time through
@@ -138,7 +157,7 @@ void httpRequest() {
     client.println("GET / HTTP/1.1");
     client.println("Host: www.arduino.cc");
     client.println("User-Agent: arduino-ethernet");
-    client.println("Connection: close");
+    client.println("Connection: keep-alive");
     client.println();
 
     // note the time that the connection was made:
@@ -173,7 +192,7 @@ void post_data(char* buf) {
     Serial.println("P2");
     client.println("User-Agent: arduino-ethernet-home");
     Serial.println("P3");
-    client.println("Connection: close");
+    client.println("Connection: keep-alive");
     Serial.println("P4");
     client.println("Content-Type: application/x-www-form-urlencoded");
     Serial.println("P5");
@@ -189,13 +208,16 @@ void post_data(char* buf) {
     // note the time that the connection was made:
     lastConnectionTime = millis();
     Serial.println("P10");
+    Serial.println("P11");
   } 
   else {
     // if you couldn't make a connection:
     Serial.println("connection failed, disconnecting");
     client.stop();
+    Serial.println("P12");
   }
-  Serial.println("P11");
+  Serial.println("P13");
+  
 }
 
 
